@@ -1,0 +1,19 @@
+# catogorize one of the predictor
+# use quantile and ***cut***----cut is very useful!!!
+
+# 210 example
+
+SAT = read.csv("http://www.ics.uci.edu/~staceyah/210/data/sat.csv")
+quantile(SAT$frac, c(0, 1/3, 2/3, 1))
+SAT$frac.cat = cut(SAT$frac, c(0,11,55,100), labels=c("Low","Med","High"))
+
+# plot by catogorized groups 
+
+# Use different plotting symbols and colors for each frac group:
+plot(sat ~ expend, data=SAT, 
+     xlab="Average expenditure per pupil ($1000)", 
+     ylab="Average SAT Score", 
+     pch=as.numeric(SAT$frac.cat), 
+     col=as.numeric(SAT$frac.cat)+1)
+# Add legend:
+legend("topright", c("Low","Med","High"), pch=c(1,2,3), col=c(2,3,4))
