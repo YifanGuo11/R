@@ -1,0 +1,26 @@
+spam <- read.csv("~/Dropbox/2016 SPRING/STAT235/FinalProject/spambase.data", header=FALSE)
+spamname <- read.table("~/Dropbox/2016 SPRING/STAT235/FinalProject/spamname", quote="\"", comment.char="")
+colnames(spam)<-spamname[,1]
+spam[,55:57]<-spam[,55:57]/100
+n<-dim(spam)[1]
+p<-dim(spam)[2]
+# setting training and testing sets
+ind.tr <- sample(n, floor(2*n/3))
+ind.te <- setdiff(seq(1, n), ind.tr)
+spamtr<-spam[ind.tr,]
+spamte<-spam[ind.te,]
+# scale training data
+X<-scale(as.matrix(spamtr[,1:57]))
+Y<-as.factor(spamtr[,p])
+## LASSO logistic regression model
+library(glmnet)
+lasmod<-glmnet(X,Y,family='binomial',alpha=1,intercept=FALSE)
+plot(lasmod,xvar="dev",label=TRUE)
+# 10-fold cross-validation
+cvlas<-cv.glmnet(X,Y,family='binomial',type.measure = 'auc',intercept=FALSE)
+plot(cvlas)
+exp(coef(cvlas, s = "lambda.min"))
+# test on the testing set
+tepre<-predict(cvlas, newx = scale(as.matrix(spamte[,1:57])), s = "lambda.min", type = "class")
+table(tepre,spamte[,58])
+mean(tepre == as.factor(spamte[,58]))
